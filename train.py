@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 import torch.optim as optim
 import torch.nn as nn
-from model.cnn_lstm import CNN_LSTM_Model  
+from model.cnn_lstm import Combined_CNN_LSTM  
 from model.data_loader import VideoDataset  
 import argparse
 import os
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
     # Initialize model, loss function, and optimizer
-    model = CNN_LSTM_Model().to(device) 
+    model = Combined_CNN_LSTM(128, 64).to(device) 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
