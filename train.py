@@ -41,7 +41,7 @@ if __name__ == '__main__':
             label = label.to(device)
 
             # Forward pass
-            outputs = model(video, audio)  # Assuming the model takes both video and audio inputs
+            outputs = model(video, audio)
             loss = criterion(outputs, label)
             
             # Backward pass and optimization
