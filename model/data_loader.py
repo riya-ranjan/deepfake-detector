@@ -7,9 +7,10 @@ import torchvision.transforms as transforms
 from torchvision.io import read_video
 
 class VideoDataset(Dataset):
-    def __init__(self, folder_path, metadata_path, audio_length=int(512/25*16000)):
+    def __init__(self, folder_path, metadata_path, data_source, audio_length=int(512/25*16000)):
         self.folder_path = folder_path
         self.metadata = self._load_metadata(metadata_path)
+        self.data_source = data_source
         self.video_files = [f for f in os.listdir(folder_path) if f.endswith('.mp4')]
         self.audio_length = audio_length  # Number of samples for a fixed audio length
         self.max_frames = 512
@@ -52,8 +53,7 @@ class VideoDataset(Dataset):
         mel_spectrogram = self.mel_transform(audio_waveform)  # Shape: (num_mels, num_frames)
 
         # Get label from metadata
-        metadata_entry = next((item for item in self.metadata if item['file'] == video_file), None)
-
+        metadata_entry = next((item for item in self.metadata if item['file'] == self.data_source + "/" + video_file), None)
         # If metadata is found, extract the label and other information
         if metadata_entry is not None:
             label = metadata_entry.get('n_fakes', 0)  # Default to 0 if 'n_fakes' is not present

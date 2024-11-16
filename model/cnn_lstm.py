@@ -10,44 +10,65 @@ import torch.nn.functional as F
 import torchaudio
 
 class CNN_LSTM_Audio(nn.Module):
-    def __init__(self, input_size):
+    def __init__(self, num_classes=1, lstm_hidden_size=128, lstm_num_layers=2):
         super(CNN_LSTM_Audio, self).__init__()
-        # Use a simple CNN for audio feature extraction
+        
+        # Audio CNN (2D Convolutional Layers)
         self.cnn = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2),
-            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
+            nn.MaxPool2d(kernel_size=(2, 2)),  # Reduce frequency and time resolution
+            
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2)
+            nn.MaxPool2d(kernel_size=(2, 2)),  # Further reduction
+            
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(2, 2))  # Final reduction
         )
-        self.lstm = nn.LSTM(input_size=input_size, hidden_size=128, num_layers=2, batch_first=True)
-        self.fc = nn.Linear(128, 2)  # Binary output: classes 0 and 1
-
-    def forward(self, audio_spectrogram):
-        batch_size, num_channels, num_mels, num_frames = audio_spectrogram.size()
-
+        
+        # LSTM for temporal modeling
+        self.lstm = nn.LSTM(
+            input_size=128,  # Match the output channel size of the CNN
+            hidden_size=lstm_hidden_size,
+            num_layers=lstm_num_layers,
+            batch_first=True
+        )
+        
+        # Fully connected layer for classification
+        self.fc = nn.Linear(lstm_hidden_size, num_classes)
+        self.softmax = nn.Sigmoid()  # Binary classification
+        
+    def forward(self, x):
+        # Input shape: (batch_size, 1, mel_bins, time_steps)
+        
         # Pass through CNN
-        cnn_output = self.cnn(audio_spectrogram)  # (batch_size, num_channels, num_mels, num_frames)
-        cnn_output = cnn_output.view(batch_size, num_frames, -1)  # Reshape for LSTM input
-
+        cnn_out = self.cnn(x)  # Shape: (batch_size, 128, reduced_mel_bins, reduced_time_steps)
+        cnn_out = cnn_out.permute(0, 3, 1, 2)  # Rearrange to (batch_size, time_steps, channels, mel_bins)
+        
+        # Flatten frequency dimension for LSTM
+        batch_size, time_steps, channels, mel_bins = cnn_out.shape
+        cnn_out = cnn_out.reshape(batch_size, time_steps, -1)  # Shape: (batch_size, time_steps, channels * mel_bins)
+        
         # Pass through LSTM
-        lstm_out, _ = self.lstm(cnn_output)  # LSTM processes sequence of audio features
-        lstm_out = lstm_out[:, -1, :]  # Take the last output of LSTM
-
-        # Pass through fully connected layer
-        output = self.fc(lstm_out)  # Output logits
-        return F.softmax(output, dim=1)  # Softmax over classes
-
+        lstm_out, _ = self.lstm(cnn_out)  # Shape: (batch_size, time_steps, lstm_hidden_size)
+        lstm_out = lstm_out[:, -1, :]  # Take the last time step's output
+        
+        # Pass through fully connected layer and activation
+        output = self.fc(lstm_out)  # Shape: (batch_size, num_classes)
+        output = self.softmax(output)
+        
+        return output
 
 class CNN_LSTM_Video(nn.Module):
     def __init__(self, input_size):
         super(CNN_LSTM_Video, self).__init__()
-        # Load pretrained Inception v3 model without fully connected layers
-        self.cnn = models.inception_v3(pretrained=True, aux_logits=True)
+        # Load Inception v3 model without fully connected layers
+        self.cnn = models.inception_v3(pretrained=False, aux_logits=False)
         self.cnn = nn.Sequential(*list(self.cnn.children())[:-1])  # Remove the final fully connected layer
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=128, num_layers=2, batch_first=True)
-        self.fc = nn.Linear(128, 2)  # Binary output: classes 0 and 1
+        self.fc = nn.Linear(128, 2) 
 
     def forward(self, video_frames):
         batch_size, sequence_length, c, h, w = video_frames.size()
@@ -77,7 +98,7 @@ class Combined_CNN_LSTM(nn.Module):
         
         # Create the individual video and audio branches
         self.video_branch = CNN_LSTM_Video(input_size=video_input_size)
-        self.audio_branch = CNN_LSTM_Audio(input_size=audio_input_size)
+        self.audio_branch = CNN_LSTM_Audio()
 
         # Final classification layer that takes both the video and audio features
         self.fc = nn.Linear(2 * 2, 2)  # Concatenated output from video and audio (2 classes each)

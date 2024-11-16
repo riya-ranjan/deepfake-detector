@@ -14,14 +14,14 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # Training parameters
     batch_size = 8
-    learning_rate = 0.0001
-    num_epochs = 1000
+    learning_rate = 0.001
+    num_epochs = 10
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load datasets
     train_dir = os.path.join(args.data_root, "train")
     meta_data_dir = os.path.join(args.data_root, "metadata.json")
-    train_dataset = VideoDataset(folder_path=train_dir, metadata_path=meta_data_dir)
+    train_dataset = VideoDataset(folder_path=train_dir, metadata_path=meta_data_dir, data_source="train")
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
     # Initialize model, loss function, and optimizer
@@ -39,7 +39,8 @@ if __name__ == '__main__':
             video = video.to(device)
             audio = audio.to(device)
             label = label.to(device)
-
+            print(video.shape)
+            print(audio.shape)
             # Forward pass
             outputs = model(video, audio)
             loss = criterion(outputs, label)
