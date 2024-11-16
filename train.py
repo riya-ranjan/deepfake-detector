@@ -53,6 +53,10 @@ if __name__ == '__main__':
             running_loss += loss.item()
             if (i + 1) % 10 == 0:  # Print every 10 batches
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
+                predictions = torch.argmax(outputs, dim=1)
+                accuracy = (predictions == labels).float().mean().item()
+                print(f"Training Accuracy: {accuracy * 100:.2f}%")
+
 
         print(f"Epoch [{epoch+1}/{num_epochs}], Average Loss: {running_loss/len(train_loader):.4f}")
 
