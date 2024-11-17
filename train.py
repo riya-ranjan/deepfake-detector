@@ -39,8 +39,6 @@ if __name__ == '__main__':
             video = video.to(device)
             audio = audio.to(device)
             label = label.to(device)
-            print(video.shape)
-            print(audio.shape)
             # Forward pass
             outputs = model(video, audio)
             loss = criterion(outputs, label)
@@ -54,7 +52,7 @@ if __name__ == '__main__':
             if (i + 1) % 10 == 0:  # Print every 10 batches
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
                 predictions = torch.argmax(outputs, dim=1)
-                accuracy = (predictions == labels).float().mean().item()
+                accuracy = (predictions == label).float().mean().item()
                 print(f"Training Accuracy: {accuracy * 100:.2f}%")
 
 
