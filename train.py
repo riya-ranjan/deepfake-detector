@@ -25,7 +25,7 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
     # Initialize model, loss function, and optimizer
-    model = Combined_CNN_LSTM(128, 64).to(device) 
+    model = Combined_CNN_LSTM(2048, 64).to(device) 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
