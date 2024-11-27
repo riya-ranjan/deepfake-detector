@@ -69,7 +69,7 @@ class CNN_LSTM_Video(nn.Module):
         self.cnn = nn.Sequential(*list(self.cnn.children())[:-1])  # Remove the final fully connected layer
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=128, num_layers=2, batch_first=True)
         self.fc = nn.Linear(128, 1) 
-        self.softmax = nn.Sigmoid
+        self.softmax = nn.Sigmoid()
 
     def forward(self, video_frames):
         batch_size, sequence_length, c, h, w = video_frames.size()
