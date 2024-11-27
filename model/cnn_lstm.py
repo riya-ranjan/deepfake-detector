@@ -30,7 +30,7 @@ class CNN_LSTM_Audio(nn.Module):
         
         # LSTM for temporal modeling
         self.lstm = nn.LSTM(
-            input_size=128,  # Match the output channel size of the CNN
+            input_size=1024,  # Match the output channel size of the CNN
             hidden_size=lstm_hidden_size,
             num_layers=lstm_num_layers,
             batch_first=True
