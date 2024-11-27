@@ -6,6 +6,8 @@ from model.cnn_lstm import Combined_CNN_LSTM
 from model.data_loader import VideoDataset  
 import argparse
 import os
+import wandb
+
 
 parser = argparse.ArgumentParser(description="training")
 parser.add_argument("--data_root", type=str)
@@ -55,7 +57,9 @@ if __name__ == '__main__':
                 accuracy = (predictions == label).float().mean().item()
                 print(f"Training Accuracy: {accuracy * 100:.2f}%")
 
+            wandb.log({"acc": accuracy, "loss": loss.item()})
 
+        wandb.finish()
         print(f"Epoch [{epoch+1}/{num_epochs}], Average Loss: {running_loss/len(train_loader):.4f}")
 
     # Save the model
