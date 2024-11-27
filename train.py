@@ -75,7 +75,7 @@ if __name__ == '__main__':
             total_correct += correct
             total_samples += label.size(0)
         
-        running_accuracy = total_correct / total_samples * 100
+        running_accuracy = total_correct / total_samples
         wandb.log({"acc": running_accuracy, "loss": running_loss})
         print(f"Epoch [{epoch+1}/{num_epochs}], Average Loss: {running_loss/len(train_loader):.4f}")
     wandb.finish()
