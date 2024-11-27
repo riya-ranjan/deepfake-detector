@@ -108,9 +108,9 @@ class Combined_CNN_LSTM(nn.Module):
         video_output = self.video_branch(video_frames)  # Video branch output
         audio_output = self.audio_branch(audio_spectrogram)  # Audio branch output
         
-        # Concatenate the outputs from both branches
-        combined_output = torch.cat((video_output, audio_output), dim=1)  # Shape: (batch_size, 4)
-
-        # Final classification layer
-        final_output = self.fc(combined_output)
-        return F.softmax(final_output, dim=1)  # Softmax over classes
+        video_pred = (video_output > 0.5).float()  # 1 if fake, 0 if real
+        audio_pred = (audio_output > 0.5).float()  # 1 if fake, 0 if real
+        
+        # Logical OR for final prediction
+        final_pred = torch.max(video_pred, audio_pred)
+        return final_pred
