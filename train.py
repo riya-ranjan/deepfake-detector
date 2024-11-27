@@ -38,7 +38,14 @@ if __name__ == '__main__':
     train_dir = os.path.join(args.data_root, "train")
     meta_data_dir = os.path.join(args.data_root, "metadata.json")
     train_dataset = VideoDataset(folder_path=train_dir, metadata_path=meta_data_dir, data_source="train")
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    
+    #subset used for initial debugging
+    subset_dataset = torch.utils.data.Subset(train_dataset, list(range(100)))
+
+    # Create a DataLoader for this subset
+    train_loader = DataLoader(subset_dataset, batch_size=batch_size, shuffle=True)
+
+    #train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
     # Initialize model, loss function, and optimizer
     model = Combined_CNN_LSTM(2048, 64).to(device) 
