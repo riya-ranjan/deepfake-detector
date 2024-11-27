@@ -57,7 +57,7 @@ if __name__ == '__main__':
                 predictions = torch.argmax(outputs, dim=1)
                 accuracy = (predictions == label).float().mean().item()
                 print(f"Training Accuracy: {accuracy * 100:.2f}%")
-
+            accuracy = (predictions == label).float().mean().item()
             wandb.log({"acc": accuracy, "loss": loss.item()})
 
         wandb.finish()
