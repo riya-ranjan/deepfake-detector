@@ -63,6 +63,8 @@ class VideoDataset(Dataset):
         if label > 0:
             label = 1
 
+        label = torch.tensor(label).view(1, 1)
+
         return video_tensor, mel_spectrogram, label
 
     def _pad_or_truncate_audio(self, audio_waveform):
