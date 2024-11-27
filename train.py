@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     # Initialize model, loss function, and optimizer
     model = Combined_CNN_LSTM(2048, 64).to(device) 
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Training loop

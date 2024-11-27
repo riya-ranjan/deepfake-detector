@@ -68,7 +68,8 @@ class CNN_LSTM_Video(nn.Module):
         self.cnn = models.inception_v3(pretrained=False, aux_logits=False)
         self.cnn = nn.Sequential(*list(self.cnn.children())[:-1])  # Remove the final fully connected layer
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=128, num_layers=2, batch_first=True)
-        self.fc = nn.Linear(128, 2) 
+        self.fc = nn.Linear(128, 1) 
+        self.softmax = nn.Sigmoid
 
     def forward(self, video_frames):
         batch_size, sequence_length, c, h, w = video_frames.size()
@@ -90,7 +91,8 @@ class CNN_LSTM_Video(nn.Module):
 
         # Pass through fully connected layer
         output = self.fc(lstm_out)  # Output logits
-        return F.softmax(output, dim=1)  # Softmax over classes
+        output = self.softmax(output)
+        return output # Softmax over classes
     
 class Combined_CNN_LSTM(nn.Module):
     def __init__(self, video_input_size, audio_input_size):
@@ -101,7 +103,7 @@ class Combined_CNN_LSTM(nn.Module):
         self.audio_branch = CNN_LSTM_Audio()
 
         # Final classification layer that takes both the video and audio features
-        self.fc = nn.Linear(2 * 2, 2)  # Concatenated output from video and audio (2 classes each)
+        self.fc = nn.Linear(2, 1)  # Concatenated output from video and audio (2 classes each)
 
     def forward(self, video_frames, audio_spectrogram):
         # Get outputs from the video and audio branches
@@ -109,10 +111,10 @@ class Combined_CNN_LSTM(nn.Module):
         audio_output = self.audio_branch(audio_spectrogram)  # Audio branch output
         print(video_output)
         print(audio_output)
-        
-        # Concatenate the outputs from both branches
-        combined_output = torch.cat((video_output, audio_output), dim=1)  # Shape: (batch_size, 4)
 
-        # Final classification layer
+        # Concatenate the outputs from both branches
+        combined_output = torch.cat((video_output, audio_output), dim=1)  # Shape: (batch_size, 2)
+
+        # Final classificatiosn layer
         final_output = self.fc(combined_output)
         return F.softmax(final_output, dim=1)  # Softmax over classes
