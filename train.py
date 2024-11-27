@@ -41,6 +41,7 @@ if __name__ == '__main__':
             video = video.to(device)
             audio = audio.to(device)
             label = label.to(device)
+            print(label)
             # Forward pass
             outputs = model(video, audio)
             loss = criterion(outputs, label)
