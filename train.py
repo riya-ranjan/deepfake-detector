@@ -13,6 +13,20 @@ parser = argparse.ArgumentParser(description="training")
 parser.add_argument("--data_root", type=str)
 
 if __name__ == '__main__':
+
+    #setup wandb stuff for logging
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project="cnn-lstm-deepfake",
+
+        # track hyperparameters and run metadata
+        config={
+        "learning_rate": 0.01,
+        "architecture": "CNN-LSTM",
+        "dataset": "LAV-DF",
+        "epochs": 10,
+        }
+    )
     args = parser.parse_args()
     # Training parameters
     batch_size = 1
