@@ -49,6 +49,8 @@ if __name__ == '__main__':
     for epoch in range(num_epochs):
         model.train()
         running_loss = 0.0
+        total_correct = 0
+        total_samples = 0
         
         for i, (video, audio, label) in enumerate(train_loader):
             # Move data to device
@@ -67,16 +69,16 @@ if __name__ == '__main__':
             running_loss += loss.item()
             if (i + 1) % 10 == 0:  # Print every 10 batches
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
-                predictions = torch.argmax(outputs, dim=1)
-                accuracy = (predictions == label).float().mean().item()
-                print(f"Training Accuracy: {accuracy * 100:.2f}%")
             
             predictions = torch.argmax(outputs, dim=1)
-            accuracy = (predictions == label).float().mean().item()
-            wandb.log({"acc": accuracy, "loss": loss.item()})
-
-        wandb.finish()
+            correct = (predictions == label).float().sum().item()
+            total_correct += correct
+            total_samples += label.size(0)
+        
+        running_accuracy = total_correct / total_samples * 100
+        wandb.log({"acc": running_accuracy, "loss": running_loss})
         print(f"Epoch [{epoch+1}/{num_epochs}], Average Loss: {running_loss/len(train_loader):.4f}")
+    wandb.finish()
 
     # Save the model
     torch.save(model.state_dict(), 'cnn_lstm_model.pth')
