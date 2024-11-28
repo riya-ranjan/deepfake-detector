@@ -29,8 +29,8 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
     # Training parameters
-    batch_size = 4
-    learning_rate = 0.1
+    batch_size = 1
+    learning_rate = 0.01
     num_epochs = 10
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     train_dataset = VideoDataset(folder_path=train_dir, metadata_path=meta_data_dir, data_source="train")
     
     #subset used for initial debugging
-    subset_dataset = torch.utils.data.Subset(train_dataset, list(range(100)))
+    subset_dataset = torch.utils.data.Subset(train_dataset, list(range(1)))
 
     # Create a DataLoader for this subset
     train_loader = DataLoader(subset_dataset, batch_size=batch_size, shuffle=True)
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     # Initialize model, loss function, and optimizer
     model = Combined_CNN_LSTM(2048, 64).to(device) 
-    criterion = nn.BCEWithLogitsLoss()
+    criterion = nn.BCELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Training loop
