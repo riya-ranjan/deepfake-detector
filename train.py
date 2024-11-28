@@ -67,7 +67,8 @@ if __name__ == '__main__':
             # Forward pass
             outputs = model(video, audio)
             loss = criterion(outputs, label.float())
-            
+            print(outputs)
+            print(label)
             # Backward pass and optimization
             optimizer.zero_grad()
             loss.backward()
