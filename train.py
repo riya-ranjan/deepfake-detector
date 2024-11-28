@@ -79,9 +79,10 @@ if __name__ == '__main__':
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
             
             predictions = torch.argmax(outputs, dim=1)
-            correct = (predictions == label).float().sum().item()
+            correct = (predictions == label.float()).float().sum().item()
             total_correct += correct
             total_samples += label.size(0)
+            print(total_correct/total_samples)
         
         running_accuracy = total_correct / total_samples
         wandb.log({"acc": running_accuracy, "loss": running_loss})
