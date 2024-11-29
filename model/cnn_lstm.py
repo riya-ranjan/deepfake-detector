@@ -114,4 +114,4 @@ class Combined_CNN_LSTM(nn.Module):
         combined_output =  1 - (1 - video_output) * (1 - audio_output)
 
         # Final classificatiosn layer
-        return F.softmax(combined_output) # Softmax over classes
+        return combined_output # Softmax over classes
