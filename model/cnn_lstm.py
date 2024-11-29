@@ -102,9 +102,6 @@ class Combined_CNN_LSTM(nn.Module):
         self.video_branch = CNN_LSTM_Video(input_size=video_input_size)
         self.audio_branch = CNN_LSTM_Audio()
 
-        # Final classification layer that takes both the video and audio features
-        self.fc = nn.Linear(2, 1)  # Concatenated output from video and audio (2 classes each)
-
     def forward(self, video_frames, audio_spectrogram):
         # Get outputs from the video and audio branches
         video_output = self.video_branch(video_frames)  # Video branch output
@@ -117,4 +114,4 @@ class Combined_CNN_LSTM(nn.Module):
         combined_output =  1 - (1 - video_output) * (1 - audio_output)
 
         # Final classificatiosn layer
-        return combined_output # Softmax over classes
+        return F.softmax(combined_output) # Softmax over classes
