@@ -85,7 +85,7 @@ if __name__ == '__main__':
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
             
             modified_outputs = outputs > 0.5
-            correct = (outputs == label.float()).float().sum().item()
+            correct = (modified_outputs == label.float()).float().sum().item()
             print("correct")
             print(correct)
             print("predictions")
