@@ -80,6 +80,12 @@ if __name__ == '__main__':
             
             predictions = torch.argmax(outputs, dim=1)
             correct = (predictions == label.float()).float().sum().item()
+            print("correct")
+            print(correct)
+            print("predictions")
+            print(predictions)
+            print("label")
+            print(label)
             total_correct += correct
             total_samples += label.size(0)
             print(total_correct/total_samples)
