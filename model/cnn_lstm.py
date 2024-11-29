@@ -109,7 +109,9 @@ class Combined_CNN_LSTM(nn.Module):
         # Get outputs from the video and audio branches
         video_output = self.video_branch(video_frames)  # Video branch output
         audio_output = self.audio_branch(audio_spectrogram)  # Audio branch output
+        print("video output")
         print(video_output)
+        print("audio output")
         print(audio_output)
         # Concatenate the outputs from both branches
         combined_output = torch.cat((video_output, audio_output), dim=1)  # Shape: (batch_size, 2)
