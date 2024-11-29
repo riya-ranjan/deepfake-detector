@@ -72,8 +72,7 @@ if __name__ == '__main__':
             # Backward pass and optimization
             optimizer.zero_grad()
             for name, param in model.named_parameters():
-                if param.grad is not None:
-                    print(f"{name}: {param.grad.abs().mean()}")
+                print(f"{name}: {param.grad.abs().mean()}")
             loss.backward()
             optimizer.step()
 
