@@ -66,7 +66,7 @@ if __name__ == '__main__':
             label = label.to(device)
             # Forward pass
             outputs = model(video, audio)
-            loss = criterion(outputs, label.float())
+            loss = criterion(outputs, label)
             print(outputs)
             print(label)
             # Backward pass and optimization
@@ -78,7 +78,8 @@ if __name__ == '__main__':
                 if param.grad is None:
                     print("NO GRAD for " + str(name))
             optimizer.step()
-
+            print("LOSS IS")
+            print(loss.item())
             running_loss += loss.item()
             if (i + 1) % 10 == 0:  # Print every 10 batches
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
