@@ -78,12 +78,11 @@ if __name__ == '__main__':
             if (i + 1) % 10 == 0:  # Print every 10 batches
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
             
-            predictions = torch.argmax(outputs, dim=1)
-            correct = (predictions == label.float()).float().sum().item()
+            correct = (outputs == label.float()).float().sum().item()
             print("correct")
             print(correct)
             print("predictions")
-            print(predictions)
+            print(outputs)
             print("label")
             print(label)
             total_correct += correct
