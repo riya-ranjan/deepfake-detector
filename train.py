@@ -70,15 +70,12 @@ if __name__ == '__main__':
             print(outputs)
             print(label)
             # Backward pass and optimization
-            for name, param in model.named_parameters():
-                if param.requires_grad:
-                    print(f"Before update - {name}: {param.data}")
             optimizer.zero_grad()
+            for name, param in model.named_parameters():
+                if param.grad is not None:
+                    print(f"{name}: {param.grad.abs().mean()}")
             loss.backward()
             optimizer.step()
-            for name, param in model.named_parameters():
-                if param.requires_grad:
-                    print(f"After update - {name}: {param.data}")
 
             running_loss += loss.item()
             if (i + 1) % 10 == 0:  # Print every 10 batches
