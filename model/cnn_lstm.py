@@ -114,8 +114,7 @@ class Combined_CNN_LSTM(nn.Module):
         print("audio output")
         print(audio_output)
         # Concatenate the outputs from both branches
-        combined_output = torch.cat((video_output, audio_output), dim=1)  # Shape: (batch_size, 2)
+        combined_output =  1 - (1 - video_output) * (1 - audio_output)
 
         # Final classificatiosn layer
-        final_output = self.fc(combined_output)
-        return F.softmax(final_output, dim=1)  # Softmax over classes
+        return combined_output # Softmax over classes
