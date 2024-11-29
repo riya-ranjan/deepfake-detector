@@ -70,12 +70,16 @@ if __name__ == '__main__':
             print(outputs)
             print(label)
             # Backward pass and optimization
-            print(model.parameters)
+            for name, param in model.named_parameters():
+                if param.requires_grad:
+                    print(f"Before update - {name}: {param.data}")
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            print(model.parameters)
-            
+            for name, param in model.named_parameters():
+                if param.requires_grad:
+                    print(f"After update - {name}: {param.data}")
+
             running_loss += loss.item()
             if (i + 1) % 10 == 0:  # Print every 10 batches
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
