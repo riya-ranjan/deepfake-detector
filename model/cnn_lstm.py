@@ -114,7 +114,7 @@ class Combined_CNN_LSTM(nn.Module):
         #combined = torch.cat((video_output, audio_output), dim=1)
         # print("combined")
         # print(combined)
-        max_val = 0.5 * (video_output + audio_output + torch.abs(video_output - audio_output))
+        max_val = 0.1 * torch.min(torch.cat((video_output, audio_output), dim=1)) + 0.9 * torch.max(torch.cat((video_output, audio_output), dim=1))
         reshaped = max_val.reshape(1,1)
         print("max val")
         print(reshaped)
