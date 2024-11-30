@@ -67,29 +67,16 @@ if __name__ == '__main__':
             # Forward pass
             outputs = model(video, audio)
             loss = criterion(outputs, label)
-            print(outputs)
-            print(label)
             # Backward pass and optimization
             optimizer.zero_grad()
             loss.backward()
-            for name, param in model.named_parameters():
-                if param.grad is not None:
-                    print(f"{name}: {param.grad.abs().mean()}")
-                if param.grad is None:
-                    print("NO GRAD for " + str(name))
             optimizer.step()
-            print("LOSS IS")
-            print(loss.item())
             running_loss += loss.item()
             if (i + 1) % 10 == 0:  # Print every 10 batches
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
             
-            modified_outputs = outputs > 0.5
+            modified_outputs = outputs > 0.7
             correct = (modified_outputs == label.float()).float().sum().item()
-            print("predictions")
-            print(outputs)
-            print("label")
-            print(label)
             total_correct += correct
             total_samples += label.size(0)
             print(total_correct/total_samples)
