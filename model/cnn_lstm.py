@@ -111,6 +111,5 @@ class Combined_CNN_LSTM(nn.Module):
         print("audio output")
         print(audio_output)
         # Concatenate the outputs from both branches
-        combined_output =  0.5 * video_output + 0.5 * audio_output
-
-        return combined_output
+        max_val = torch.max((video_output, audio_output))
+        return max_val
