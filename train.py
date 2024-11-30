@@ -75,7 +75,6 @@ if __name__ == '__main__':
             if (i + 1) % 10 == 0:  # Print every 10 batches
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
             
-            modified_outputs = outputs > 0.7
             correct = (modified_outputs == label.float()).float().sum().item()
             total_correct += correct
             total_samples += label.size(0)
