@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     # Initialize model, loss function, and optimizer
     model = Combined_CNN_LSTM(2048, 64).to(device) 
-    criterion = nn.BCELoss(weight = torch.tensor([2/3, 1/3]))
+    criterion = nn.BCELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Training loop
