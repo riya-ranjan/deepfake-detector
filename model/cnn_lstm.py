@@ -115,6 +115,7 @@ class Combined_CNN_LSTM(nn.Module):
         print("combined")
         print(combined)
         max_val = torch.max(combined)
+        reshaped = max_val.reshape(1,1)
         print("max val")
-        print(max_val)
-        return max_val
+        print(reshaped)
+        return reshaped
