@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
         # track hyperparameters and run metadata
         config={
-        "learning_rate": 0.01,
+        "learning_rate": 0.001,
         "architecture": "CNN-LSTM",
         "dataset": "LAV-DF",
         "epochs": 10,
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     train_dataset = VideoDataset(folder_path=train_dir, metadata_path=meta_data_dir, data_source="train")
     
     #subset used for initial debugging
-    subset_dataset = torch.utils.data.Subset(train_dataset, list(range(100)))
+    subset_dataset = torch.utils.data.Subset(train_dataset, list(range(10)))
 
     # Create a DataLoader for this subset
     train_loader = DataLoader(subset_dataset, batch_size=batch_size, shuffle=True)
@@ -86,8 +86,6 @@ if __name__ == '__main__':
             
             modified_outputs = outputs > 0.5
             correct = (modified_outputs == label.float()).float().sum().item()
-            print("correct")
-            print(correct)
             print("predictions")
             print(outputs)
             print("label")
