@@ -30,7 +30,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # Training parameters
     batch_size = 1
-    learning_rate = 0.01
+    learning_rate = 0.001
     num_epochs = 10
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

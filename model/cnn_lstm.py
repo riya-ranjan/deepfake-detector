@@ -111,7 +111,7 @@ class Combined_CNN_LSTM(nn.Module):
         print("audio output")
         print(audio_output)
         # Concatenate the outputs from both branches
-        combined_output =  1 - (1 - video_output) * (1 - audio_output)
+        combined_output =  0.5 * video_output + 0.5 * audio_output
 
         # Final classificatiosn layer
         return combined_output # Softmax over classes
