@@ -40,7 +40,7 @@ if __name__ == '__main__':
     train_dataset = VideoDataset(folder_path=train_dir, metadata_path=meta_data_dir, data_source="train")
     
     #subset used for initial debugging
-    subset_dataset = torch.utils.data.Subset(train_dataset, list(range(10)))
+    subset_dataset = torch.utils.data.Subset(train_dataset, list(range(100)))
 
     # Create a DataLoader for this subset
     train_loader = DataLoader(subset_dataset, batch_size=batch_size, shuffle=True)
