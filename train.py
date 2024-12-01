@@ -54,7 +54,7 @@ if __name__ == '__main__':
     sampler = WeightedRandomSampler(weights=sample_weights, num_samples=100, replacement=False)
 
     # Create a DataLoader for this subset
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=sampler, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=sampler)
 
     #train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
