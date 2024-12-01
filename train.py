@@ -56,8 +56,6 @@ if __name__ == '__main__':
     # Create a DataLoader for this subset
     train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=sampler)
 
-    #train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-
     # Initialize model, loss function, and optimizer
     model = Combined_CNN_LSTM(2048, 64).to(device) 
     criterion = nn.BCELoss()
@@ -111,7 +109,7 @@ if __name__ == '__main__':
         wandb.log({"acc": running_accuracy, "loss": running_loss, "precision": running_precision, "recall": running_recall})
         print(f"Epoch [{epoch+1}/{num_epochs}], Average Loss: {running_loss/len(train_loader):.4f}")
         path = "./experiments/cnn_lstm_model_" + str(epoch) + ".pth"
-        torch.save(model.state_dict(), "./experiments/cnn_lstm_model.pth")
+        torch.save(model.state_dict(), path)
     wandb.finish()
 
     # Save the model

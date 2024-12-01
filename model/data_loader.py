@@ -35,8 +35,6 @@ class VideoDataset(Dataset):
     def __getitem__(self, idx):
         video_file = self.video_files[idx]
         video_path = os.path.join(self.folder_path, video_file)
-
-        # Load video frames and audio
         video, audio, info = read_video(video_path, pts_unit='sec')
 
         if video.shape[0] > self.max_frames:
@@ -45,8 +43,6 @@ class VideoDataset(Dataset):
             padding = torch.zeros(self.max_frames - video.shape[0], *video.shape[1:])  # Pad
             video = torch.cat([video, padding], 0)
     
-        # Check the number of channels in the video tensor
-        # If more than 3 channels, convert to RGB
         if video.shape[-1] > 3:
             video = video[:, :, :, :3]  # Take the first 3 channels (RGB)
 
