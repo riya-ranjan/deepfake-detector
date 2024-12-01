@@ -31,7 +31,7 @@ if __name__ == '__main__':
     # Training parameters
     batch_size = 1
     learning_rate = 0.001
-    num_epochs = 20
+    num_epochs = 10
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load datasets
@@ -39,6 +39,11 @@ if __name__ == '__main__':
     meta_data_dir = os.path.join(args.data_root, "metadata.json")
     train_dataset = VideoDataset(folder_path=train_dir, metadata_path=meta_data_dir, data_source="train")
     
+    #use sampler to calibrate model against data imbalance
+
+    sample_weights = class_weights[dataset.targets]
+    sampler = WeightedRandomSampler(sample_weights, len(sample_weights))
+
     #subset used for initial debugging
     subset_dataset = torch.utils.data.Subset(train_dataset, list(range(100)))
 
@@ -99,6 +104,8 @@ if __name__ == '__main__':
         running_recall = true_pos / (true_pos + false_neg)
         wandb.log({"acc": running_accuracy, "loss": running_loss, "precision": running_precision, "recall": running_recall})
         print(f"Epoch [{epoch+1}/{num_epochs}], Average Loss: {running_loss/len(train_loader):.4f}")
+        path = "./experiments/cnn_lstm_model_" + str(epoch) + ".pth"
+        torch.save(model.state_dict(), "./experiments/cnn_lstm_model.pth")
     wandb.finish()
 
     # Save the model

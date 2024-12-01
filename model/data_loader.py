@@ -12,10 +12,9 @@ class VideoDataset(Dataset):
         self.metadata = self._load_metadata(metadata_path)
         self.data_source = data_source
         self.video_files = [f for f in os.listdir(folder_path) if f.endswith('.mp4')]
-        self.audio_length = audio_length  # Number of samples for a fixed audio length
+        self.audio_length = audio_length
         self.max_frames = 512
-
-        # Define audio transform to mel spectrogram
+        # We want the mel spectrogram to have 64 features
         self.mel_transform = torchaudio.transforms.MelSpectrogram(n_mels=64)
 
     def _load_metadata(self, metadata_path):
@@ -44,10 +43,8 @@ class VideoDataset(Dataset):
         if video.shape[-1] > 3:
             video = video[:, :, :, :3]  # Take the first 3 channels (RGB)
 
-        # Process video: Shape should be (num_frames, 3, 299, 299)
         video_tensor = video.permute(0, 3, 1, 2)  # Convert to shape (num_frames, 3, height, width)
 
-        # Process audio: Convert to mel spectrogram and ensure fixed length
         audio_waveform, sample_rate = audio, info['audio_fps']
         audio_waveform = self._pad_or_truncate_audio(audio_waveform)
         mel_spectrogram = self.mel_transform(audio_waveform)  # Shape: (num_mels, num_frames)
