@@ -58,16 +58,18 @@ if __name__ == '__main__':
         running_loss = 0.0
         total_correct = 0
         total_samples = 0
-        
+
+        false_pos = 0
+        true_pos = 0
+        false_neg = 0
+
         for i, (video, audio, label) in enumerate(train_loader):
             # Move data to device
             video = video.to(device)
             audio = audio.to(device)
             label = label.to(device)
-            print(label)
             # Forward pass
             outputs = model(video, audio)
-            print(outputs)
             loss = criterion(outputs, label)
             # Backward pass and optimization
             optimizer.zero_grad()
@@ -77,14 +79,25 @@ if __name__ == '__main__':
             if (i + 1) % 10 == 0:  # Print every 10 batches
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
             
-            modified_outputs = outputs > 0.7
+            modified_outputs = outputs > 0.5
+            total_fake = (label.float() == 1).sum().item()
+
+            tp = ((modified_outputs == 1) & (label.float() == 1)).sum().item()  # True Positives
+            fp = ((modified_outputs == 1) & (label.float() == 0)).sum().item()  # False Positives
+            fn = ((modified_outputs == 0) & (label.float() == 1)).sum().item()  # False Negatives
+
+            true_pos += tp
+            false_pos += fp
+            false_neg += fn
+
             correct = (modified_outputs == label.float()).float().sum().item()
             total_correct += correct
             total_samples += label.size(0)
-            print(total_correct/total_samples)
         
         running_accuracy = total_correct / total_samples
-        wandb.log({"acc": running_accuracy, "loss": running_loss})
+        running_precision = true_pos / (true_pos + false_pos)
+        running_recall = true_pos / (true_pos + false_neg)
+        wandb.log({"acc": running_accuracy, "loss": running_loss, "precision": running_precision, "recall": running_recall})
         print(f"Epoch [{epoch+1}/{num_epochs}], Average Loss: {running_loss/len(train_loader):.4f}")
     wandb.finish()
 
