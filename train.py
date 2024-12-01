@@ -1,7 +1,8 @@
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, WeightedRandomSampler
 import torch.optim as optim
 import torch.nn as nn
+from collections import Counter
 from model.cnn_lstm import Combined_CNN_LSTM  
 from model.data_loader import VideoDataset  
 import argparse
@@ -41,14 +42,19 @@ if __name__ == '__main__':
     
     #use sampler to calibrate model against data imbalance
 
-    sample_weights = class_weights[dataset.targets]
-    sampler = WeightedRandomSampler(sample_weights, len(sample_weights))
+    label_counts = Counter(train_dataset.labels)
 
-    #subset used for initial debugging
-    subset_dataset = torch.utils.data.Subset(train_dataset, list(range(100)))
+    # Compute weights for each class
+    class_weights = {label: 1.0 / count for label, count in label_counts.items()}
+
+    # Assign sample weights based on label
+    sample_weights = [class_weights[label] for label in train_dataset.labels]
+
+    # Define the sampler
+    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=100, replacement=False)
 
     # Create a DataLoader for this subset
-    train_loader = DataLoader(subset_dataset, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=sampler, shuffle=True)
 
     #train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 

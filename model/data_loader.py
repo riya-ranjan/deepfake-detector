@@ -16,6 +16,12 @@ class VideoDataset(Dataset):
         self.max_frames = 512
         # We want the mel spectrogram to have 64 features
         self.mel_transform = torchaudio.transforms.MelSpectrogram(n_mels=64)
+        #create label array to use for weighted sampling
+        self.true_labels = []
+        for file in self.video_files:
+            metadata_entry = next((item for item in self.metadata if item['file'] == self.data_source + "/" + file), None)
+            self.true_labels.append(metadata_entry.get('n_fakes', 0))
+        self.labels = [1 if label > 0 else 0 for label in self.true_labels]
 
     def _load_metadata(self, metadata_path):
         with open(metadata_path, 'r') as f:
