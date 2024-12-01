@@ -25,7 +25,7 @@ if __name__ == '__main__':
         "learning_rate": 0.001,
         "architecture": "CNN-LSTM",
         "dataset": "LAV-DF",
-        "epochs": 20,
+        "epochs": 10,
         }
     )
     args = parser.parse_args()
@@ -41,19 +41,11 @@ if __name__ == '__main__':
     train_dataset = VideoDataset(folder_path=train_dir, metadata_path=meta_data_dir, data_source="train")
     
     #use sampler to calibrate model against data imbalance
-
     label_counts = Counter(train_dataset.labels)
-
-    # Compute weights for each class
     class_weights = {label: 1.0 / count for label, count in label_counts.items()}
-
-    # Assign sample weights based on label
     sample_weights = [class_weights[label] for label in train_dataset.labels]
-
-    # Define the sampler
     sampler = WeightedRandomSampler(weights=sample_weights, num_samples=100, replacement=False)
 
-    # Create a DataLoader for this subset
     train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=sampler)
 
     # Initialize model, loss function, and optimizer
