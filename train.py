@@ -24,14 +24,14 @@ if __name__ == '__main__':
         "learning_rate": 0.001,
         "architecture": "CNN-LSTM",
         "dataset": "LAV-DF",
-        "epochs": 10,
+        "epochs": 20,
         }
     )
     args = parser.parse_args()
     # Training parameters
     batch_size = 1
     learning_rate = 0.001
-    num_epochs = 10
+    num_epochs = 20
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load datasets
@@ -102,5 +102,5 @@ if __name__ == '__main__':
     wandb.finish()
 
     # Save the model
-    torch.save(model.state_dict(), 'cnn_lstm_model.pth')
+    torch.save(model.state_dict(), "./experiments/cnn_lstm_model.pth")
     print("Model saved to cnn_lstm_model.pth")
