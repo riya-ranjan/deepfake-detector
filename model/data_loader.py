@@ -12,7 +12,7 @@ class VideoDataset(Dataset):
         self.metadata = self._load_metadata(metadata_path)
         self.data_source = data_source
         self.video_files = [f for f in os.listdir(folder_path) if f.endswith('.mp4')]
-        video_files = video_files[5000]
+        self.video_files = self.video_files[0:5000]
         self.audio_length = audio_length
         self.max_frames = 512
         # We want the mel spectrogram to have 64 features
