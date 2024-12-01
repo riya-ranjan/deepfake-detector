@@ -102,5 +102,6 @@ if __name__ == '__main__':
     wandb.finish()
 
     # Save the model
+    print(model.state_dict())
     torch.save(model.state_dict(), "./experiments/cnn_lstm_model.pth")
     print("Model saved to cnn_lstm_model.pth")
