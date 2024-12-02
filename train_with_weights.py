@@ -77,6 +77,7 @@ if __name__ == '__main__':
             outputs = model(video, audio)
             loss = criterion(outputs, label)
             weights = torch.tensor([real_weight if l == 1 else fake_weight for l in label])
+            weights = weights.to(device)
             weighted_loss = loss * weights  # Apply class weights
             final_loss = weighted_loss.mean() 
             # Backward pass and optimization
