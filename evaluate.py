@@ -32,6 +32,11 @@ def evaluate(model, loss_fn, dataloader, device):
         outputs = model(video, audio)
         loss = loss_fn(outputs, label)
 
+        outputs = outputs.to('cpu')
+        video = video.to('cpu')
+        audio = audio.to('cpu')
+        label = label.to('cpu')
+
         running_loss += loss.item()
         modified_outputs = outputs > 0.5
 
