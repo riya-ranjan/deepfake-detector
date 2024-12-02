@@ -31,12 +31,7 @@ def evaluate(model, loss_fn, dataloader, device):
 
         outputs = model(video, audio)
         loss = loss_fn(outputs, label)
-
-        outputs = outputs.to('cpu')
-        video = video.to('cpu')
-        audio = audio.to('cpu')
-        label = label.to('cpu')
-
+        
         running_loss += loss.item()
         modified_outputs = outputs > 0.5
 
@@ -88,14 +83,14 @@ if __name__ == '__main__':
     label_counts = Counter(dev_dataset.labels)
     class_weights = {label: 1.0 / count for label, count in label_counts.items()}
     sample_weights = [class_weights[label] for label in dev_dataset.labels]
-    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=100, replacement=False)
+    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=200, replacement=False)
 
     dev_loader = DataLoader(dev_dataset, batch_size=1, sampler=sampler)
 
     model = Combined_CNN_LSTM(2048, 64).to(device) 
     state_dict = torch.load(args.model_root)
     model.load_state_dict(state_dict)
-    model.train() #set to evaluation mode
+    model.eval() #set to evaluation mode
     loss_fn = nn.BCELoss()
     evaluate(model, loss_fn, dev_loader, device)
 
