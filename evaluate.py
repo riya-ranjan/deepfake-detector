@@ -28,7 +28,7 @@ def evaluate(model, loss_fn, dataloader, device):
         video = video.to(device)
         audio = audio.to(device)
         label = label.to(device)
-        # Forward pass
+
         outputs = model(video, audio)
         loss = loss_fn(outputs, label)
 
@@ -46,7 +46,9 @@ def evaluate(model, loss_fn, dataloader, device):
         correct = (modified_outputs == label.float()).float().sum().item()
         total_correct += correct
         total_samples += label.size(0)
-    
+
+        torch.cuda.empty_cache()
+
     running_accuracy = total_correct / total_samples
     running_precision = true_pos / (true_pos + false_pos)
     running_recall = true_pos / (true_pos + false_neg)
@@ -88,7 +90,7 @@ if __name__ == '__main__':
     model = Combined_CNN_LSTM(2048, 64).to(device) 
     state_dict = torch.load(args.model_root)
     model.load_state_dict(state_dict)
-    model.train() #set to evaluation mode
+    model.eval() #set to evaluation mode
     loss_fn = nn.BCELoss()
     evaluate(model, loss_fn, dev_loader, device)
 
