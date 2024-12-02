@@ -31,6 +31,7 @@ def evaluate(model, loss_fn, dataloader, device):
         # Forward pass
         outputs = model(video, audio)
         loss = loss_fn(outputs, label)
+
         running_loss += loss.item()
         modified_outputs = outputs > 0.5
 
@@ -87,7 +88,7 @@ if __name__ == '__main__':
     model = Combined_CNN_LSTM(2048, 64).to(device) 
     state_dict = torch.load(args.model_root)
     model.load_state_dict(state_dict)
-    #model.eval() #set to evaluation mode
+    model.train() #set to evaluation mode
     loss_fn = nn.BCELoss()
     evaluate(model, loss_fn, dev_loader, device)
 
