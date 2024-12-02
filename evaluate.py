@@ -57,7 +57,7 @@ def evaluate(model, loss_fn, dataloader, device):
     running_accuracy = total_correct / total_samples
     running_precision = true_pos / (true_pos + false_pos)
     running_recall = true_pos / (true_pos + false_neg)
-    running_loss /= len(dev_loader)
+    running_loss /= len(dataloader)
     wandb.log({"acc": running_accuracy, "loss": running_loss, "precision": running_precision, "recall": running_recall})
 
 if __name__ == '__main__':
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu")
 
     # Load dev datasets
     dev_dir = os.path.join(args.data_root, "dev")
