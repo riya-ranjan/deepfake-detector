@@ -82,7 +82,7 @@ if __name__ == '__main__':
     sample_weights = [class_weights[label] for label in dev_dataset.labels]
     sampler = WeightedRandomSampler(weights=sample_weights, num_samples=100, replacement=False)
 
-    dev_loader = DataLoader(dev_dataset, sampler=sampler)
+    dev_loader = DataLoader(dev_dataset, batch_size=1, sampler=sampler)
 
     model = Combined_CNN_LSTM(2048, 64).to(device) 
     state_dict = torch.load(args.model_root)
