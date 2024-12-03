@@ -74,6 +74,7 @@ class CNN_LSTM_Video(nn.Module):
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=128, num_layers=2, batch_first=True)
         self.fc = nn.Linear(128, 1) 
         self.softmax = nn.Sigmoid()
+        self.dropout = nn.Dropout(0.25)
 
     def forward(self, video_frames):
         batch_size, sequence_length, c, h, w = video_frames.size()
@@ -82,6 +83,7 @@ class CNN_LSTM_Video(nn.Module):
         # Process each frame through the CNN individually
         for i in range(sequence_length):
             frame = video_frames[:, i, :, :, :]  # Extract one frame at a time
+            frame = self.dropout(frame)
             cnn_output = self.cnn(frame)  # (batch_size, num_features, 1, 1)
             cnn_output = cnn_output.view(batch_size, -1)  # Flatten the output
             frame_features.append(cnn_output)
