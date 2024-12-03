@@ -25,15 +25,21 @@ def evaluate(model, loss_fn, dataloader, device):
     true_pos = 0
     false_neg = 0
 
+    print(f"Total batches in dataloader: {len(dataloader)}") 
+
     for i, (video, audio, label) in enumerate(dataloader):
-        print("ENTERED LOOP!")
+        print(f"Iteration {i+1}")  # More detailed iteration tracking
+        print(f"Video shape: {video.shape}")
+        print(f"Audio shape: {audio.shape}")
+        print(f"Label: {label}")
 
         video = video.to(device)
         audio = audio.to(device)
         label = label.to(device)
 
-        outputs = model(video, audio)
-        loss = loss_fn(outputs, label)
+        with torch.no_grad():  # Use no_grad for evaluation
+            outputs = model(video, audio)
+            loss = loss_fn(outputs, label)
         
         running_loss += loss.item()
         modified_outputs = outputs > 0.5
@@ -51,6 +57,9 @@ def evaluate(model, loss_fn, dataloader, device):
         total_samples += label.size(0)
 
         torch.cuda.empty_cache()
+    
+    print(f"Total Samples: {total_samples}")
+    print(f"Total Correct: {total_correct}")
 
     running_accuracy = total_correct / total_samples
     running_precision = true_pos / (true_pos + false_pos)
