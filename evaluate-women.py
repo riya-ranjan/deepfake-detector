@@ -7,9 +7,6 @@ from model.cnn_lstm import Combined_CNN_LSTM
 from model.data_loader_women import VideoDatasetWomen
 import argparse
 import os
-# import torch_xla.core.xla_model as xm
-# import wandb
-
 
 parser = argparse.ArgumentParser(description="training")
 parser.add_argument("--data_root", type=str)
@@ -94,23 +91,8 @@ def evaluate(model, loss_fn, dataloader, device):
     }
 if __name__ == '__main__':
 
-    # #initialize wandb
-    # wandb.init(
-    #     # set the wandb project where this run will be logged
-    #     project="cnn-lstm-deepfake",
-
-    #     # track hyperparameters and run metadata
-    #     config={
-    #     "learning_rate": 0.001,
-    #     "architecture": "CNN-LSTM",
-    #     "dataset": "LAV-DF",
-    #     "epochs": 10,
-    #     }
-    # )
-
     args = parser.parse_args()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # device = xm.xla_device()
 
     # Load dev datasets
     dev_dir = os.path.join(args.data_root, "dev")
@@ -127,7 +109,6 @@ if __name__ == '__main__':
     dev_loader = DataLoader(dev_dataset, batch_size=1, sampler=sampler)
 
     model = Combined_CNN_LSTM(2048, 64).to(device) 
-    # state_dict = torch.load(args.model_root, map_location=lambda storage, loc: storage.cuda() if torch.cuda.is_available() else storage)
     state_dict = torch.load(args.model_root, map_location=device)
     model.load_state_dict(state_dict)
     model.eval() #set to evaluation mode

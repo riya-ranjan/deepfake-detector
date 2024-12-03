@@ -64,9 +64,9 @@ class VideoDatasetWomen(Dataset):
 
         # Get label from metadata
         metadata_entry = next((item for item in self.metadata if item['filename'] == video_file), None)
-        # If metadata is found, extract the label and other information
+        # If metadata is found, extract the label
         if metadata_entry is not None:
-            label = metadata_entry.get('n_fakes', 0)  # Default to 0 if 'n_fakes' is not present
+            label = metadata_entry.get('n_fakes', 0)  # Default to 0
         else:
             label = 0  # Default label in case metadata is missing
 
@@ -79,7 +79,6 @@ class VideoDatasetWomen(Dataset):
         return video_tensor, mel_spectrogram, label
 
     def _pad_or_truncate_audio(self, audio_waveform):
-        # Pad or truncate audio waveform to ensure a fixed length
         if audio_waveform.size(1) > self.audio_length:
             return audio_waveform[:, :self.audio_length]
         else:
