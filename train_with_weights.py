@@ -89,7 +89,6 @@ if __name__ == '__main__':
                 print(f"Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Loss: {final_loss.item():.4f}")
             
             modified_outputs = outputs > 0.5
-            total_fake = (label.float() == 1).sum().item()
 
             tp = ((modified_outputs == 1) & (label.float() == 1)).sum().item()  # True Positives
             fp = ((modified_outputs == 1) & (label.float() == 0)).sum().item()  # False Positives

@@ -39,11 +39,15 @@ class CNN_LSTM_Audio(nn.Module):
         # Fully connected layer for classification
         self.fc = nn.Linear(lstm_hidden_size, num_classes)
         self.softmax = nn.Sigmoid()  # Binary classification
+
+        #dropout 
+        self.dropout = nn.Dropout(0.25)
         
     def forward(self, x):
         # Input shape: (batch_size, 1, mel_bins, time_steps)
         
         # Pass through CNN
+        x = self.dropout(x)
         cnn_out = self.cnn(x)  # Shape: (batch_size, 128, reduced_mel_bins, reduced_time_steps)
         cnn_out = cnn_out.permute(0, 3, 1, 2)  # Rearrange to (batch_size, time_steps, channels, mel_bins)
         
