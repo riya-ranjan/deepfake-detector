@@ -7,6 +7,7 @@ from model.cnn_lstm import Combined_CNN_LSTM
 from model.data_loader_women import VideoDatasetWomen
 import argparse
 import os
+import torch_xla.core.xla_model as xm
 # import wandb
 
 
@@ -84,7 +85,8 @@ if __name__ == '__main__':
     # )
 
     args = parser.parse_args()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = xm.xla_device()
 
     # Load dev datasets
     dev_dir = os.path.join(args.data_root, "dev")
@@ -101,7 +103,8 @@ if __name__ == '__main__':
     dev_loader = DataLoader(dev_dataset, batch_size=1, sampler=sampler)
 
     model = Combined_CNN_LSTM(2048, 64).to(device) 
-    state_dict = torch.load(args.model_root, map_location=lambda storage, loc: storage.cuda() if torch.cuda.is_available() else storage)
+    # state_dict = torch.load(args.model_root, map_location=lambda storage, loc: storage.cuda() if torch.cuda.is_available() else storage)
+    state_dict = torch.load(args.model_root, map_location=device)
     model.load_state_dict(state_dict)
     model.eval() #set to evaluation mode
     loss_fn = nn.BCELoss()
