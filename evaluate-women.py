@@ -7,7 +7,7 @@ from model.cnn_lstm import Combined_CNN_LSTM
 from model.data_loader_women import VideoDatasetWomen
 import argparse
 import os
-import torch_xla.core.xla_model as xm
+# import torch_xla.core.xla_model as xm
 # import wandb
 
 
@@ -85,8 +85,8 @@ if __name__ == '__main__':
     # )
 
     args = parser.parse_args()
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = xm.xla_device()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = xm.xla_device()
 
     # Load dev datasets
     dev_dir = os.path.join(args.data_root, "dev")
