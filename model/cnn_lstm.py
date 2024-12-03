@@ -39,11 +39,15 @@ class CNN_LSTM_Audio(nn.Module):
         # Fully connected layer for classification
         self.fc = nn.Linear(lstm_hidden_size, num_classes)
         self.softmax = nn.Sigmoid()  # Binary classification
+
+        #dropout 
+        self.dropout = nn.Dropout(0.25)
         
     def forward(self, x):
         # Input shape: (batch_size, 1, mel_bins, time_steps)
         
         # Pass through CNN
+        x = self.dropout(x)
         cnn_out = self.cnn(x)  # Shape: (batch_size, 128, reduced_mel_bins, reduced_time_steps)
         cnn_out = cnn_out.permute(0, 3, 1, 2)  # Rearrange to (batch_size, time_steps, channels, mel_bins)
         
@@ -70,6 +74,7 @@ class CNN_LSTM_Video(nn.Module):
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=128, num_layers=2, batch_first=True)
         self.fc = nn.Linear(128, 1) 
         self.softmax = nn.Sigmoid()
+        self.dropout = nn.Dropout(0.25)
 
     def forward(self, video_frames):
         batch_size, sequence_length, c, h, w = video_frames.size()
@@ -78,6 +83,7 @@ class CNN_LSTM_Video(nn.Module):
         # Process each frame through the CNN individually
         for i in range(sequence_length):
             frame = video_frames[:, i, :, :, :]  # Extract one frame at a time
+            frame = self.dropout(frame)
             cnn_output = self.cnn(frame)  # (batch_size, num_features, 1, 1)
             cnn_output = cnn_output.view(batch_size, -1)  # Flatten the output
             frame_features.append(cnn_output)
@@ -110,8 +116,9 @@ class Combined_CNN_LSTM(nn.Module):
         print(video_output)
         print("audio output")
         print(audio_output)
-        w1 = torch.min(torch.cat((video_output, audio_output), dim=1)) / (video_output + audio_output)
-        w2 = torch.max(torch.cat((video_output, audio_output), dim=1)) / (video_output + audio_output)
-        max_val = w1 * torch.min(torch.cat((video_output, audio_output), dim=1)) + w2 * torch.max(torch.cat((video_output, audio_output), dim=1))
+        # w1 = torch.min(torch.cat((video_output, audio_output), dim=1)) / (video_output + audio_output)
+        # w2 = torch.max(torch.cat((video_output, audio_output), dim=1)) / (video_output + audio_output)
+        # max_val = w1 * torch.min(torch.cat((video_output, audio_output), dim=1)) + w2 * torch.max(torch.cat((video_output, audio_output), dim=1))
+        max_val = 0.1 * torch.min(torch.cat((video_output, audio_output), dim=1)) + 0.9 * torch.max(torch.cat((video_output, audio_output), dim=1))
         reshaped = max_val.reshape(1,1)
         return reshaped

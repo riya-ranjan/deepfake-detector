@@ -31,7 +31,7 @@ def evaluate(model, loss_fn, dataloader, device):
 
         outputs = model(video, audio)
         loss = loss_fn(outputs, label)
-        
+
         running_loss += loss.item()
         modified_outputs = outputs > 0.5
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    device = torch.device("cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load dev datasets
     dev_dir = os.path.join(args.data_root, "dev")
