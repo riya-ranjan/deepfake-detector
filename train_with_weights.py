@@ -104,8 +104,10 @@ if __name__ == '__main__':
             total_samples += label.size(0)
         
         running_accuracy = total_correct / total_samples
-        running_precision = true_pos / (true_pos + false_pos)
-        running_recall = true_pos / (true_pos + false_neg)
+        if true_pos + false_pos != 0:
+            running_precision = true_pos / (true_pos + false_pos)
+        if true_pos + false_neg != 0:
+            running_recall = true_pos / (true_pos + false_neg)
         wandb.log({"acc": running_accuracy, "loss": running_loss, "precision": running_precision, "recall": running_recall})
         print(f"Epoch [{epoch+1}/{num_epochs}], Average Loss: {running_loss/len(train_loader):.4f}")
         path = "./experiments/cnn_lstm_model_" + str(epoch) + ".pth"
