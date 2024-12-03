@@ -44,13 +44,13 @@ if __name__ == '__main__':
     label_counts = Counter(train_dataset.labels)
     class_weights = {label: 1.0 / count for label, count in label_counts.items()}
     sample_weights = [class_weights[label] for label in train_dataset.labels]
-    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=10, replacement=False)
+    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=30, replacement=False)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=sampler)
 
     #weights for loss function
-    real_weight = sum(label_counts.values()) / (2 * label_counts[0])
-    fake_weight = sum(label_counts.values()) / (2 * label_counts[1])
+    real_weight = class_weights[0]
+    fake_weight = class_weights[1]
 
     # Initialize model, loss function, and optimizer
     model = Combined_CNN_LSTM(2048, 64).to(device) 
@@ -104,9 +104,9 @@ if __name__ == '__main__':
             total_samples += label.size(0)
         
         running_accuracy = total_correct / total_samples
-        if true_pos + false_pos != 0:
+        if (true_pos + false_pos) != 0:
             running_precision = true_pos / (true_pos + false_pos)
-        if true_pos + false_neg != 0:
+        if (true_pos + false_neg) != 0:
             running_recall = true_pos / (true_pos + false_neg)
         wandb.log({"acc": running_accuracy, "loss": running_loss, "precision": running_precision, "recall": running_recall})
         print(f"Epoch [{epoch+1}/{num_epochs}], Average Loss: {running_loss/len(train_loader):.4f}")
