@@ -87,7 +87,7 @@ if __name__ == '__main__':
     label_counts = Counter(dev_dataset.labels)
     class_weights = {label: 1.0 / count for label, count in label_counts.items()}
     sample_weights = [class_weights[label] for label in dev_dataset.labels]
-    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=50, replacement=False)
+    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=10, replacement=False)
 
     dev_loader = DataLoader(dev_dataset, batch_size=1, sampler=sampler)
 
