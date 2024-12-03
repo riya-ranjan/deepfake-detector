@@ -26,24 +26,26 @@ def evaluate(model, loss_fn, dataloader, device):
     true_pos = 0
     false_neg = 0
 
+    # Lists to store predictions and labels
+    all_predictions = []
+    all_labels = []
+
     print(f"Total batches in dataloader: {len(dataloader)}") 
-
     for i, (video, audio, label) in enumerate(dataloader):
-        print(f"Iteration {i+1}")  # More detailed iteration tracking
-        print(f"Video shape: {video.shape}")
-        print(f"Audio shape: {audio.shape}")
-        print(f"Label: {label}")
-
         video = video.to(device)
         audio = audio.to(device)
         label = label.to(device)
 
-        with torch.no_grad():  # Use no_grad for evaluation
+        with torch.no_grad():  
             outputs = model(video, audio)
             loss = loss_fn(outputs, label)
         
         running_loss += loss.item()
-        modified_outputs = outputs > 0.5
+        modified_outputs = (outputs > 0.5).float()
+
+        # Store predictions and labels
+        all_predictions.extend(modified_outputs.cpu().numpy())
+        all_labels.extend(label.cpu().numpy())
 
         tp = ((modified_outputs == 1) & (label.float() == 1)).sum().item()  # True Positives
         fp = ((modified_outputs == 1) & (label.float() == 0)).sum().item()  # False Positives
@@ -59,15 +61,37 @@ def evaluate(model, loss_fn, dataloader, device):
 
         torch.cuda.empty_cache()
     
+    # Prevent division by zero
+    running_accuracy = total_correct / total_samples if total_samples > 0 else 0
+    
+    # Precision calculation with zero division handling
+    running_precision = (true_pos / (true_pos + false_pos)) if (true_pos + false_pos) > 0 else 0
+    
+    # Recall calculation with zero division handling
+    running_recall = (true_pos / (true_pos + false_neg)) if (true_pos + false_neg) > 0 else 0
+    
+    running_loss /= len(dataloader) if len(dataloader) > 0 else 1
+
+    # Print predictions and labels
+    print("\nPredictions vs Labels:")
+    for pred, label in zip(all_predictions, all_labels):
+        print(f"Prediction: {pred}, Label: {label}")
+
+    # Print metrics
+    print("\nEvaluation Metrics:")
     print(f"Total Samples: {total_samples}")
     print(f"Total Correct: {total_correct}")
+    print(f"Accuracy: {running_accuracy:.4f}")
+    print(f"Precision: {running_precision:.4f}")
+    print(f"Recall: {running_recall:.4f}")
+    print(f"Average Loss: {running_loss:.4f}")
 
-    running_accuracy = total_correct / total_samples
-    running_precision = true_pos / (true_pos + false_pos)
-    running_recall = true_pos / (true_pos + false_neg)
-    running_loss /= len(dataloader)
-    # wandb.log({"acc": running_accuracy, "loss": running_loss, "precision": running_precision, "recall": running_recall})
-
+    return {
+        'accuracy': running_accuracy,
+        'precision': running_precision,
+        'recall': running_recall,
+        'loss': running_loss
+    }
 if __name__ == '__main__':
 
     # #initialize wandb
