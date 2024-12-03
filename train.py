@@ -30,7 +30,7 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
     # Training parameters
-    batch_size = 1
+    batch_size = 4
     learning_rate = 0.001
     num_epochs = 10
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     label_counts = Counter(train_dataset.labels)
     class_weights = {label: 1.0 / count for label, count in label_counts.items()}
     sample_weights = [class_weights[label] for label in train_dataset.labels]
-    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=30, replacement=False)
+    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=1000, replacement=False)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=sampler)
 
