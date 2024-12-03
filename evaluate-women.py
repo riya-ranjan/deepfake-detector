@@ -13,6 +13,8 @@ import os
 parser = argparse.ArgumentParser(description="training")
 parser.add_argument("--data_root", type=str)
 parser.add_argument("--model_root", type=str)
+parser.add_argument("--metadata_path", type=str, help="Path to the metadata JSON file")
+
 
 def evaluate(model, loss_fn, dataloader, device):
     running_loss = 0.0
@@ -77,7 +79,8 @@ if __name__ == '__main__':
 
     # Load dev datasets
     dev_dir = os.path.join(args.data_root, "dev")
-    meta_data_dir = "/Users/anushka/Downloads/women-metadata.json"
+    meta_data_dir = args.metadata_path
+
     dev_dataset = VideoDatasetWomen(folder_path=dev_dir, metadata_path=meta_data_dir, data_source="dev")
     
     #use sampler to calibrate model against data imbalance
