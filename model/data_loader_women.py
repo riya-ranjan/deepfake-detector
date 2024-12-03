@@ -6,13 +6,14 @@ import torchaudio
 import torchvision.transforms as transforms
 from torchvision.io import read_video
 
-class VideoDataset(Dataset):
+class VideoDatasetWomen(Dataset):
     def __init__(self, folder_path, metadata_path, data_source, audio_length=int(512/25*16000)):
         self.folder_path = folder_path
+
         self.metadata = self._load_metadata(metadata_path)
+
         self.data_source = data_source
         self.video_files = [f for f in os.listdir(folder_path) if f.endswith('.mp4')]
-        self.video_files = self.video_files[0:1000]
         self.audio_length = audio_length
         self.max_frames = 512
         # We want the mel spectrogram to have 64 features
@@ -20,13 +21,22 @@ class VideoDataset(Dataset):
         #create label array to use for weighted sampling
         self.true_labels = []
         for file in self.video_files:
-            metadata_entry = next((item for item in self.metadata if item['file'] == self.data_source + "/" + file), None)
-            self.true_labels.append(metadata_entry.get('n_fakes', 0))
+            metadata_entry = next((item for item in self.metadata if item['filename'] == file), None)
+            self.true_labels.append(metadata_entry.get('label', 0))
         self.labels = [1 if label > 0 else 0 for label in self.true_labels]
 
-    def _load_metadata(self, metadata_path):
+    def _load_metadata(self, metadata_path, data_source="dev"):
         with open(metadata_path, 'r') as f:
-            metadata = json.load(f)
+            all_metadata = json.load(f)
+        
+        # Ensure the data source exists
+        if data_source not in all_metadata:
+            raise ValueError(f"Data source {data_source} not found in metadata. Available sources: {list(all_metadata.keys())}")
+        
+        # Get metadata for specific split (train/dev/test)
+        metadata = all_metadata[data_source]
+        
+        print(f"Loaded {len(metadata)} entries for {data_source}")
         return metadata
 
     def __len__(self):
@@ -53,7 +63,7 @@ class VideoDataset(Dataset):
         mel_spectrogram = self.mel_transform(audio_waveform)  # Shape: (num_mels, num_frames)
 
         # Get label from metadata
-        metadata_entry = next((item for item in self.metadata if item['file'] == self.data_source + "/" + video_file), None)
+        metadata_entry = next((item for item in self.metadata if item['filename'] == video_file), None)
         # If metadata is found, extract the label and other information
         if metadata_entry is not None:
             label = metadata_entry.get('n_fakes', 0)  # Default to 0 if 'n_fakes' is not present
