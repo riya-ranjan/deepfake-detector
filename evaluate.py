@@ -57,12 +57,12 @@ def evaluate(model, loss_fn, dataloader, device):
 
 if __name__ == '__main__':
 
-    #initialize wandb
+    # Initialize wandb
     wandb.init(
-        # set the wandb project where this run will be logged
+        # Set the wandb project where this run will be logged
         project="cnn-lstm-deepfake",
 
-        # track hyperparameters and run metadata
+        # Track hyperparameters and run metadata
         config={
         "learning_rate": 0.001,
         "architecture": "CNN-LSTM",
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     meta_data_dir = os.path.join(args.data_root, "metadata.json")
     dev_dataset = VideoDataset(folder_path=dev_dir, metadata_path=meta_data_dir, data_source="dev")
     
-    #use sampler to calibrate model against data imbalance
+    # Use sampler to calibrate model against data imbalance
     label_counts = Counter(dev_dataset.labels)
     class_weights = {label: 1.0 / count for label, count in label_counts.items()}
     sample_weights = [class_weights[label] for label in dev_dataset.labels]
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     model = Combined_CNN_LSTM(2048, 64).to(device) 
     state_dict = torch.load(args.model_root)
     model.load_state_dict(state_dict)
-    model.eval() #set to evaluation mode
+    model.eval() # Set to evaluation mode
     loss_fn = nn.BCELoss()
     evaluate(model, loss_fn, dev_loader, device)
 

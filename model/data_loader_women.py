@@ -16,9 +16,10 @@ class VideoDatasetWomen(Dataset):
         self.video_files = [f for f in os.listdir(folder_path) if f.endswith('.mp4')]
         self.audio_length = audio_length
         self.max_frames = 512
+
         # We want the mel spectrogram to have 64 features
         self.mel_transform = torchaudio.transforms.MelSpectrogram(n_mels=64)
-        #create label array to use for weighted sampling
+        # Create label array to use for weighted sampling
         self.true_labels = []
         for file in self.video_files:
             metadata_entry = next((item for item in self.metadata if item['filename'] == file), None)
@@ -53,8 +54,9 @@ class VideoDatasetWomen(Dataset):
             padding = torch.zeros(self.max_frames - video.shape[0], *video.shape[1:])  # Pad
             video = torch.cat([video, padding], 0)
     
+        # Remove alpha channel if present
         if video.shape[-1] > 3:
-            video = video[:, :, :, :3]  # Take the first 3 channels (RGB)
+            video = video[:, :, :, :3]
 
         video_tensor = video.permute(0, 3, 1, 2)  # Convert to shape (num_frames, 3, height, width)
 
@@ -64,6 +66,7 @@ class VideoDatasetWomen(Dataset):
 
         # Get label from metadata
         metadata_entry = next((item for item in self.metadata if item['filename'] == video_file), None)
+        
         # If metadata is found, extract the label and other information
         if metadata_entry is not None:
             label = metadata_entry.get('n_fakes', 0)  # Default to 0 if 'n_fakes' is not present

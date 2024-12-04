@@ -15,12 +15,12 @@ parser.add_argument("--data_root", type=str)
 
 if __name__ == '__main__':
 
-    #setup wandb stuff for logging
+    # Setup wandb stuff for logging
     wandb.init(
-        # set the wandb project where this run will be logged
+        # Set the wandb project where this run will be logged
         project="cnn-lstm-deepfake",
 
-        # track hyperparameters and run metadata
+        # Track hyperparameters and run metadata
         config={
         "learning_rate": 0.001,
         "architecture": "CNN-LSTM",
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     meta_data_dir = os.path.join(args.data_root, "metadata.json")
     train_dataset = VideoDataset(folder_path=train_dir, metadata_path=meta_data_dir, data_source="train")
     
-    #use sampler to calibrate model against data imbalance
+    # Use sampler to calibrate model against data imbalance
     label_counts = Counter(train_dataset.labels)
     class_weights = {label: 1.0 / count for label, count in label_counts.items()}
     sample_weights = [class_weights[label] for label in train_dataset.labels]

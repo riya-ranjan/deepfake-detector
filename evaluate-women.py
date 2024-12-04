@@ -63,11 +63,7 @@ def evaluate(model, loss_fn, dataloader, device):
     
     # Prevent division by zero
     running_accuracy = total_correct / total_samples if total_samples > 0 else 0
-    
-    # Precision calculation with zero division handling
     running_precision = (true_pos / (true_pos + false_pos)) if (true_pos + false_pos) > 0 else 0
-    
-    # Recall calculation with zero division handling
     running_recall = (true_pos / (true_pos + false_neg)) if (true_pos + false_neg) > 0 else 0
     
     running_loss /= len(dataloader) if len(dataloader) > 0 else 1
@@ -118,7 +114,7 @@ if __name__ == '__main__':
 
     dev_dataset = VideoDatasetWomen(folder_path=dev_dir, metadata_path=meta_data_dir, data_source="dev")
     
-    #use sampler to calibrate model against data imbalance
+    # Use sampler to calibrate model against data imbalance
     label_counts = Counter(dev_dataset.labels)
     class_weights = {label: 1.0 / count for label, count in label_counts.items()}
     sample_weights = [class_weights[label] for label in dev_dataset.labels]
