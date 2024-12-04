@@ -13,7 +13,6 @@ class CNN_LSTM_Audio(nn.Module):
     def __init__(self, num_classes=1, lstm_hidden_size=128, lstm_num_layers=2):
         super(CNN_LSTM_Audio, self).__init__()
         
-        # Audio CNN (2D Convolutional Layers)
         self.cnn = nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
@@ -21,14 +20,14 @@ class CNN_LSTM_Audio(nn.Module):
             
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2)),  
+            nn.MaxPool2d(kernel_size=(2, 2)),
             
             nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2))  
+            nn.MaxPool2d(kernel_size=(2, 2)) 
         )
         
-        # LSTM for temporal modeling
+        
         self.lstm = nn.LSTM(
             input_size=1024, 
             hidden_size=lstm_hidden_size,
@@ -44,19 +43,18 @@ class CNN_LSTM_Audio(nn.Module):
         self.dropout = nn.Dropout(0.25)
         
     def forward(self, x):
-        # Input shape: (batch_size, 1, mel_bins, time_steps)
         
         # Pass through CNN
         x = self.dropout(x)
-        cnn_out = self.cnn(x)  # Shape: (batch_size, 128, reduced_mel_bins, reduced_time_steps)
+        cnn_out = self.cnn(x)  
         cnn_out = cnn_out.permute(0, 3, 1, 2)  # Rearrange to (batch_size, time_steps, channels, mel_bins)
         
-        # Flatten frequency dimension for LSTM
+        # Flatten for LSTM
         batch_size, time_steps, channels, mel_bins = cnn_out.shape
-        cnn_out = cnn_out.reshape(batch_size, time_steps, -1)  # Shape: (batch_size, time_steps, channels * mel_bins)
+        cnn_out = cnn_out.reshape(batch_size, time_steps, -1) 
         
         # Pass through LSTM
-        lstm_out, _ = self.lstm(cnn_out)  # Shape: (batch_size, time_steps, lstm_hidden_size)
+        lstm_out, _ = self.lstm(cnn_out) 
         lstm_out = lstm_out[:, -1, :]  # Take the last time step's output
         
         # Pass through fully connected layer and activation
@@ -84,21 +82,21 @@ class CNN_LSTM_Video(nn.Module):
         for i in range(sequence_length):
             frame = video_frames[:, i, :, :, :]  # Extract one frame at a time
             frame = self.dropout(frame)
-            cnn_output = self.cnn(frame)  # (batch_size, num_features, 1, 1)
-            cnn_output = cnn_output.view(batch_size, -1)  # Flatten the output
+            cnn_output = self.cnn(frame) 
+            cnn_output = cnn_output.view(batch_size, -1) 
             frame_features.append(cnn_output)
 
         # Stack the CNN features into a sequence (batch_size, sequence_length, num_features)
         cnn_features = torch.stack(frame_features, dim=1)
 
         # Pass through LSTM
-        lstm_out, _ = self.lstm(cnn_features)  
-        lstm_out = lstm_out[:, -1, :]  
+        lstm_out, _ = self.lstm(cnn_features)
+        lstm_out = lstm_out[:, -1, :] 
 
         # Pass through fully connected layer
-        output = self.fc(lstm_out)  # Output logits
+        output = self.fc(lstm_out)
         output = self.softmax(output)
-        return output # Softmax over classes
+        return output
     
 class Combined_CNN_LSTM(nn.Module):
     def __init__(self, video_input_size, audio_input_size):
@@ -110,17 +108,17 @@ class Combined_CNN_LSTM(nn.Module):
 
     def forward(self, video_frames, audio_spectrogram):
         # Get outputs from the video and audio branches
-        video_output = self.video_branch(video_frames)  
-        audio_output = self.audio_branch(audio_spectrogram) 
-        print("Video output", video_output)
-        print("Audio output", audio_output)
+        video_output = self.video_branch(video_frames)  # Video branch output
+        audio_output = self.audio_branch(audio_spectrogram)  # Audio branch output
 
-        # w1 = torch.min(torch.cat((video_output, audio_output), dim=1)) / (video_output + audio_output)
-        # w2 = torch.max(torch.cat((video_output, audio_output), dim=1)) / (video_output + audio_output)
-        # max_val = w1 * torch.min(torch.cat((video_output, audio_output), dim=1)) + w2 * torch.max(torch.cat((video_output, audio_output), dim=1))
-
-        max_val = 0.1 * torch.min(torch.cat((video_output, audio_output), dim=1)) + 0.9 * torch.max(torch.cat((video_output, audio_output), dim=1))
-        
-        # Reshape the combined tensor for further processing or output
+        if video_output > 0.5:
+            if audio_output > 0.5:
+                max_val = (audio_output + video_output)/2
+            else:
+                max_val = video_output
+        elif audio_output > 0.5:
+            max_val = audio_output
+        else:
+            max_val = (audio_output + video_output)/2
         reshaped = max_val.reshape(1,1)
         return reshaped
